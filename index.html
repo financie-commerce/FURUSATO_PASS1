@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ふるさと住民登録後の活動・購買・トークン保有をつなぐ実証提案モック。" />
+    <title>水縁市 ふるさと住民パス｜実証提案モック</title>
+    <link rel="stylesheet" href="./styles.css?v=0.1.0" />
+    <script defer src="./app.js?v=0.1.0"></script>
+  </head>
+  <body>
+    <div class="proposal-layout">
+      <aside class="proposal" aria-label="実証実験の提案概要">
+        <div class="proposal-inner">
+          <header class="proposal-brand">
+            <span class="proposal-mark">M</span>
+            <div><small>FICTIONAL CITY / PILOT CONCEPT</small><strong>水縁市 × FiNANCiE</strong></div>
+          </header>
+
+          <div class="proposal-copy">
+            <p class="kicker">FURUSATO RELATIONSHIP INFRASTRUCTURE</p>
+            <h1>登録者を数えるだけで、<br />終わらせない。</h1>
+            <p class="lead">来訪・参加・購買を記録し、地域との関係が深まり続ける循環をつくる。</p>
+          </div>
+
+          <div class="proposal-tabs" role="tablist" aria-label="提案の要点">
+            <button class="is-active" type="button" data-story="concept">構想</button>
+            <button type="button" data-story="system">制度接続</button>
+            <button type="button" data-story="pilot">実証KPI</button>
+          </div>
+          <section class="story-panel" id="storyPanel" aria-live="polite"></section>
+
+          <div class="proposal-bottom">
+            <button type="button" data-app-route="register">住民登録を体験する</button>
+            <span>想定：500人・20事業者・6か月</span>
+          </div>
+        </div>
+      </aside>
+
+      <section class="demo-shell" id="app-demo" aria-label="住民向けアプリデモ">
+        <header class="demo-meta">
+          <span>CONCEPT DEMO</span>
+          <small>架空自治体・制度検討用</small>
+          <strong>運営：水縁市</strong>
+        </header>
+        <main class="app-scroll">
+          <header class="app-header">
+            <button class="city-mark" type="button" data-route="home" aria-label="ホームへ戻る">水</button>
+            <div><small>ANOTHER HOMETOWN PASS</small><strong>水縁市 ふるさと住民パス</strong></div>
+            <button class="notice-button" type="button" data-route="notices" aria-label="お知らせを見る"><span></span></button>
+          </header>
+          <div id="screen"></div>
+        </main>
+        <nav class="bottom-nav" aria-label="主要メニュー">
+          <button class="nav-item is-active" type="button" data-route="home" data-icon="home"><span></span><strong>ホーム</strong></button>
+          <button class="nav-item" type="button" data-route="discover" data-icon="discover"><span></span><strong>見つける</strong></button>
+          <button class="nav-item nav-token" type="button" data-route="token" data-icon="token"><span></span><strong>トークン</strong></button>
+          <button class="nav-item" type="button" data-route="store" data-icon="store"><span></span><strong>ストア</strong></button>
+          <button class="nav-item" type="button" data-route="profile" data-icon="profile"><span></span><strong>マイページ</strong></button>
+        </nav>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </section>
+    </div>
+  </body>
+</html>
