@@ -47,6 +47,19 @@ function renderStory() {
 
 const sectionHead = (label,title,action="") => `<div class="section-head"><div><p class="eyebrow">${label}</p><h2>${title}</h2></div>${action}</div>`;
 const format = (value) => new Intl.NumberFormat("ja-JP").format(value);
+const holderStages = [
+  { threshold: 500, name: "Co-Creator" },
+  { threshold: 200, name: "Partner" },
+  { threshold: 50, name: "Supporter" },
+  { threshold: 0, name: "Member" },
+];
+const holderBenefits = [
+  { threshold: 500, name: "地域プロジェクト提案会" },
+  { threshold: 200, name: "水辺文化祭・企画会議" },
+  { threshold: 50, name: "活動の先行案内" },
+];
+const getHolderStage = (balance) => holderStages.find((stage) => balance >= stage.threshold);
+const getLostBenefits = (before, after) => holderBenefits.filter((benefit) => before >= benefit.threshold && after < benefit.threshold);
 
 function home() {
   return `<section class="hero"><span class="status-chip">● ベーシック登録済み</span><small>水縁市公認・ふるさと住民</small><h1>もうひとつの住民として、まちの力になる。</h1><p>訪れる、手伝う、買う。一人ひとりの関わりを記録し、水縁市との関係を育てます。</p><div class="hero-actions"><button type="button" data-route="discover">今日できること</button><button class="ghost" type="button" data-route="memberCard">会員証を見る</button></div></section>
@@ -67,7 +80,7 @@ function memberCardPage() {
 
 function tokenPage() {
   return `<section class="page-lead token-lead"><p class="eyebrow">MIZUBE TOKEN</p><h1>水縁トークン</h1><p>水縁市とのつながりを表す、持って楽しむデジタルグッズです。</p></section>
-  <section class="token-holding"><div><span>保有数</span><strong>${format(tokenBalance)}</strong></div><button class="info-button" type="button" data-info="token">トークンとは？</button></section>
+  <section class="token-holding"><div><span>保有数</span><strong>${format(tokenBalance)}</strong><small>${getHolderStage(tokenBalance).name} ステージ</small></div><button class="info-button" type="button" data-info="token">トークンとは？</button></section>
   <div class="exchange-choice"><button type="button" data-trade="exchange"><span>交換</span><strong>限定ポイントから増やす</strong></button><button type="button" data-trade="return"><span>返却</span><strong>保有を終えてFiNANCiEへ</strong></button></div>
   <section>${sectionHead("HOLDER BENEFITS","保有数に応じた体験")}<div class="benefit-list"><article><span>50</span><div><h3>活動の先行案内</h3><p>担い手募集を一般公開前にお知らせ</p></div><strong>利用中</strong></article><article><span>200</span><div><h3>水辺文化祭・企画会議</h3><p>オンライン企画会議への参加枠</p></div><strong>あと${Math.max(0,200-tokenBalance)}</strong></article><article><span>500</span><div><h3>地域プロジェクト提案会</h3><p>事業者・市職員との共創セッション</p></div><strong>あと${Math.max(0,500-tokenBalance)}</strong></article></div></section>
   <p class="disclaimer">トークンは商品・サービスの支払いには使用せず、消費されません。表示内容は実証検討用のサンプルです。</p>`;
@@ -77,10 +90,15 @@ function tradePage() {
   const isExchange = tradeMode === "exchange";
   const receive = isExchange ? Math.floor(tradeAmount / 48.2) : Math.floor(tradeAmount * 45.6);
   const enough = isExchange ? limitedPoints >= tradeAmount : tokenBalance >= tradeAmount;
+  const afterBalance = isExchange ? tokenBalance + receive : tokenBalance - tradeAmount;
+  const beforeStage = getHolderStage(tokenBalance);
+  const afterStage = getHolderStage(Math.max(0, afterBalance));
+  const lostBenefits = isExchange ? [] : getLostBenefits(tokenBalance, afterBalance);
+  const returnImpact = !isExchange ? `<div class="return-impact ${beforeStage.name !== afterStage.name ? "has-change" : ""}"><p><span>生涯ポイント</span><strong>${format(lifetimePoints)} ptのまま</strong></p><p><span>トークン保有数</span><strong>${format(tokenBalance)} → ${format(afterBalance)}</strong></p><p><span>保有ステージ</span><strong>${beforeStage.name}${beforeStage.name !== afterStage.name ? ` → ${afterStage.name}` : "を維持"}</strong></p>${lostBenefits.length ? `<div class="benefit-warning"><strong>利用できなくなる特典</strong><span>${lostBenefits.map((benefit)=>benefit.name).join("、")}</span></div>` : `<small>今回の返却では、現在の保有者特典は変わりません。</small>`}</div>` : "";
   return `<button class="back-link" type="button" data-route="token">← 水縁トークンへ戻る</button><section class="page-lead"><p class="eyebrow">${isExchange ? "EXCHANGE" : "RETURN"}</p><h1>${isExchange ? "限定ポイントと交換" : "トークンを返却"}</h1><p>${isExchange ? "使う限定ポイントを選ぶと、現在受け取れるトークン数を確認できます。" : "返却する数量を選ぶと、現在の返却条件を確認できます。返却後の管理はFiNANCiEで行います。"}</p></section>
   <div class="trade-tabs"><button class="${isExchange ? "is-active" : ""}" type="button" data-trade="exchange">交換</button><button class="${!isExchange ? "is-active" : ""}" type="button" data-trade="return">返却</button></div>
-  <section class="trade-card"><div class="trade-balance"><span>${isExchange ? "利用できる限定ポイント" : "保有しているトークン"}</span><strong>${format(isExchange ? limitedPoints : tokenBalance)}${isExchange ? " pt" : ""}</strong></div><p class="trade-label">${isExchange ? "交換に使うポイント" : "返却するトークン"}</p><div class="amount-options">${(isExchange ? [500,1000,1400] : [10,30,50]).map((amount)=>`<button class="${tradeAmount===amount ? "is-active" : ""}" type="button" data-amount="${amount}">${format(amount)}</button>`).join("")}</div>
-  <div class="live-quote"><small>現在の${isExchange ? "交換" : "返却"}条件</small><div><span>${format(tradeAmount)}${isExchange ? " pt" : " トークン"}</span><b>→</b><strong>${format(receive)}${isExchange ? " トークン" : "円"}</strong></div><p>この条件はリアルタイムで変動します</p></div>
+  <section class="trade-card"><div class="trade-balance"><span>${isExchange ? "利用できる限定ポイント" : "保有しているトークン"}</span><strong>${format(isExchange ? limitedPoints : tokenBalance)}${isExchange ? " pt" : ""}</strong></div><p class="trade-label">${isExchange ? "交換に使うポイント" : "返却するトークン"}</p><div class="amount-options">${(isExchange ? [500,1000,1400] : [10,50,100]).map((amount)=>`<button class="${tradeAmount===amount ? "is-active" : ""}" type="button" data-amount="${amount}">${format(amount)}</button>`).join("")}</div>
+  <div class="live-quote"><small>現在の${isExchange ? "交換" : "返却"}条件</small><div><span>${format(tradeAmount)}${isExchange ? " pt" : " トークン"}</span><b>→</b><strong>${format(receive)}${isExchange ? " トークン" : "円"}</strong></div><p>この条件はリアルタイムで変動します</p></div>${returnImpact}
   <div class="quote-alert"><strong>確定前にご確認ください</strong><p>${isExchange ? "需給のバランスにより、最終的に受け取る数量が変わることがあります。" : "返却した分の保有者特典は終了します。返却後の売上金確認・出金はFiNANCiEで行います。"} 次のボタンを押すと${isExchange ? "交換" : "返却"}が確定します。</p></div><button class="wide-button" type="button" data-confirm-trade ${enough ? "" : "disabled"}>この条件で${isExchange ? "交換" : "返却"}を確定</button></section>`;
 }
 
@@ -131,8 +149,8 @@ function showInfo(type) {
   modalRoot.innerHTML = `<div class="modal-backdrop"><section class="info-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="modal-close" type="button" data-close-modal aria-label="閉じる">×</button><p class="eyebrow">${isToken ? "MIZUBE TOKEN" : "MIZUBE SCORE"}</p><h2 id="modalTitle">${isToken ? "水縁トークンとは？" : "水縁スコアとは？"}</h2><p>${isToken ? "水縁市が発行するデジタルグッズです。持っている数量に応じて特別な体験やお知らせをお届けします。限定ポイントを使った交換で増やすことも、返却することもできます。需給のバランスで受け取れる数量が変動するのも特徴です。" : "あなたが水縁市と過ごした時間や応援を記録するポイントです。生涯ポイントは来訪や活動を含む消費しない記録。限定ポイントは購入や有料体験で受け取り、ストアとトークン交換に使えます。"}</p><button class="wide-button" type="button" data-close-modal>わかりました</button></section></div>`;
 }
 
-function showReturnComplete(amount, received) {
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="info-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="modal-close" type="button" data-close-modal aria-label="閉じる">×</button><p class="eyebrow">RETURN COMPLETE</p><h2 id="modalTitle">${format(amount)}トークンを返却しました</h2><p>現在の条件で返却が完了しました。売上金 ${format(received)}円はFiNANCiEアカウントに反映されます。</p><div class="platform-note"><strong>ここから先はFiNANCiEへ</strong><span>売上金の確認・出金申請はプラットフォーム側で行います。</span></div><button class="wide-button" type="button" data-action="financie-account">FiNANCiEで確認する</button><button class="modal-sub-button" type="button" data-close-modal>水縁市パスに戻る</button></section></div>`;
+function showReturnComplete(amount, received, beforeStage, afterStage) {
+  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="info-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button class="modal-close" type="button" data-close-modal aria-label="閉じる">×</button><p class="eyebrow">RETURN COMPLETE</p><h2 id="modalTitle">${format(amount)}トークンを返却しました</h2><p>現在の条件で返却が完了しました。生涯ポイントと活動履歴はそのまま残ります。${beforeStage.name !== afterStage.name ? `保有ステージは${afterStage.name}へ変更されました。` : "保有ステージは維持されています。"}</p><div class="platform-note"><strong>ここから先はFiNANCiEへ</strong><span>売上金 ${format(received)}円の確認・出金申請はプラットフォーム側で行います。</span></div><button class="wide-button" type="button" data-action="financie-account">FiNANCiEで確認する</button><button class="modal-sub-button" type="button" data-close-modal>水縁市パスに戻る</button></section></div>`;
 }
 
 document.addEventListener("click", (event) => {
@@ -144,12 +162,12 @@ document.addEventListener("click", (event) => {
   const infoButton = event.target.closest("[data-info]");
   if (infoButton) { showInfo(infoButton.dataset.info); return; }
   const tradeButton = event.target.closest("[data-trade]");
-  if (tradeButton) { tradeMode = tradeButton.dataset.trade; tradeAmount = tradeMode === "exchange" ? 1000 : 30; go("trade"); return; }
+  if (tradeButton) { tradeMode = tradeButton.dataset.trade; tradeAmount = tradeMode === "exchange" ? 1000 : 50; go("trade"); return; }
   const amountButton = event.target.closest("[data-amount]");
   if (amountButton) { tradeAmount = Number(amountButton.dataset.amount); render(); return; }
   if (event.target.closest("[data-confirm-trade]")) {
     if (tradeMode === "exchange") { const received = Math.floor(tradeAmount/48.2); limitedPoints -= tradeAmount; tokenBalance += received; showToast(`${received}トークンとの交換が完了しました（デモ）`); }
-    else { const received = Math.floor(tradeAmount*45.6); tokenBalance -= tradeAmount; const returned = tradeAmount; go("token"); showReturnComplete(returned, received); return; }
+    else { const received = Math.floor(tradeAmount*45.6); const beforeStage = getHolderStage(tokenBalance); tokenBalance -= tradeAmount; const afterStage = getHolderStage(tokenBalance); const returned = tradeAmount; go("token"); showReturnComplete(returned, received, beforeStage, afterStage); return; }
     go("token"); return;
   }
   const routeButton = event.target.closest("[data-route]");
