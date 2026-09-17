@@ -35,19 +35,29 @@ navItems.forEach((item) => { item.querySelector("span").innerHTML = svg(item.dat
 
 const stories = {
   concept: [
-    ["01 / REGISTER", "第2のふるさとを持つ", "関心のある地域へ簡単に登録し、公式情報と関わりの入口をひとつに。"],
-    ["02 / DEEPEN", "行動を関係へ変える", "来訪・参加・担い手活動を記録し、継続的な関係性を可視化。"],
-    ["03 / RETAIN", "持ち続けたい関係へ", "保有者だけの体験を届け、地域との関係が続く理由を育てる。"],
+    ["REGIONAL ISSUE", "来訪の先が続かない", "観光客・寄附者・出身者との接点が分断され、次の参加につながらない。"],
+    ["HYPOTHESIS", "次の行動を個別に届ける", "関心に合う活動と特典を届ければ、再訪・担い手参加・地域消費が増える。"],
+    ["PUBLIC VALUE", "関係を地域の力へ変える", "登録数ではなく、継続的な来訪・参加・担い手化までを可視化する。"],
   ],
   system: [
-    ["PUBLIC", "国の登録基盤", "ベーシック／プレミアム登録と本人確認を担う共通プラットフォーム。"],
-    ["LOCAL", "水縁市の活動基盤", "イベント、担い手募集、来訪記録を既存サービスとつなぐ。"],
-    ["PRIVATE", "FiNANCiE経済圏", "購買還元・トークン保有・民間特典を行政資格と分けて運用。"],
+    ["PUBLIC / 想定", "国の共通基盤", "登録ID・登録区分を連携し、制度本体を置き換えずに活用する。"],
+    ["LOCAL / HIS", "地域体験と活動基盤", "自治体・HISが体験を造成。既存の予約・LINE・EC・POSを残して実績を集約。"],
+    ["OPTION", "FiNANCiE民間拡張", "限定ポイント・コマース・トークンは任意。基本実証から切り離して導入可能。"],
   ],
   pilot: [
-    ["KPI 01", "関係の深さ", "90日再訪率、活動参加回数、プレミアム候補への転換率。"],
-    ["KPI 02", "地域経済", "参加店送客数、購入額、有料体験利用、限定ポイント利用率。"],
-    ["KPI 03", "関係の継続性", "トークン交換率、継続保有率、返却率から地域体験の魅力を検証。"],
+    ["TARGET", "500人から100人の参加へ", "登録500人、対象活動参加100人、参加事業者20者を6か月で検証。"],
+    ["OUTCOME", "90日再関与率30%", "閲覧・申込・参加・再参加を計測し、登録後の行動変容を評価する。"],
+    ["GO / NO-GO", "継続条件を先に決める", "参加単価、職員事務時間、事業者継続意向を基に本導入を判断。"],
+  ],
+  operation: [
+    ["01 / APPLY", "住民が活動へ申込", "関心に応じた募集を通知。申込時点ではポイントを付与しない。"],
+    ["02 / VERIFY", "現地QR＋主催者承認", "来訪はQR、担い手活動は主催者確認で実績化し、重複を防ぐ。"],
+    ["03 / RECORD", "承認後に記録・判定", "生涯ポイントを付与し、年3回を目安にプレミアム候補を判定。"],
+  ],
+  candidate: [
+    ["FIT 01", "リピーターを把握したい", "観光・寄附・イベントの接点はあるが、その後の関係が見えない地域。"],
+    ["FIT 02", "担い手不足が明確", "祭り、環境保全、文化継承など、域外参加者に開ける活動がある地域。"],
+    ["FIT 03", "官民で小さく始められる", "庁内責任者1名、地域コーディネーター1名、協力事業者10者以上が目安。"],
   ],
 };
 
@@ -105,16 +115,17 @@ function home() {
 
 function registerPage() {
   return `<section class="page-lead"><p class="eyebrow">FURUSATO RESIDENT</p><h1>水縁市を、もうひとつのふるさとに。</h1><p>登録は地域との関係の入口。活動を重ねることで、担い手としての関わりへ進めます。</p></section>
+  <section class="registration-flow"><article><span>1</span><div><strong>関心を選ぶ</strong><p>自然、食、文化、担い手活動</p></div></article><article><span>2</span><div><strong>連携に同意</strong><p>利用目的と共有先を確認</p></div></article><article><span>3</span><div><strong>情報を受け取る</strong><p>通知頻度はいつでも変更可能</p></div></article></section>
   <article class="register-card"><div class="row-between"><div><p class="eyebrow">BASIC</p><h2>ベーシック登録</h2></div><span class="phase-label">${registered ? "登録済み" : "すぐに登録"}</span></div><p>水縁市に関心がある方なら、地域外からでも登録できます。</p><div class="register-features"><span>関心に合わせた公式情報</span><span>イベント・活動募集の案内</span><span>デジタル登録証</span></div><button class="wide-button" type="button" data-action="register">${registered ? "登録証を表示する" : "水縁市に登録する"}</button></article>
-  <article class="register-card is-premium"><div class="row-between"><div><p class="eyebrow">PREMIUM</p><h2>プレミアム登録</h2></div><span class="phase-label">活動 2 / 3回</span></div><p>自治体が指定する担い手活動を重ねた方が申請できる上位登録です。購入額やトークン数では判定しません。</p><div class="register-features"><span>担い手活動のサポート</span><span>公共施設等の利用支援</span><span>年1回、活動実績を確認</span></div><button class="wide-button" type="button" disabled>あと1回の対象活動で申請候補</button></article>`;
+  <article class="register-card is-premium"><div class="row-between"><div><p class="eyebrow">PREMIUM</p><h2>プレミアム登録</h2></div><span class="phase-label">承認済み 2 / 3回</span></div><p>自治体が指定し、主催者が参加確認した担い手活動を重ねた方が申請できる上位登録です。購入額やトークン数では判定しません。</p><div class="register-features"><span>担い手活動のサポート</span><span>公共施設等の利用支援</span><span>年1回、活動実績を確認</span></div><button class="wide-button" type="button" disabled>あと1回の承認済み活動で申請候補</button></article>`;
 }
 
 function memberCardPage() {
-  return `<section class="member-screen"><div class="member-title"><p class="eyebrow">DIGITAL RESIDENT CARD</p><h1>水縁市 会員証</h1><p>施設やイベントで、この画面をご提示ください。</p></div><section class="resident-card member-large"><small>MIZUBE FURUSATO RESIDENT</small><h2>水縁市 ベーシック住民証</h2><p>登録番号：MZB-2026-00842</p><div class="member-code" aria-label="会員証コード">${"<i></i>".repeat(12)}</div><strong>大西 太郎 さん</strong></section><button class="wide-button" type="button" data-route="register">登録区分と条件を見る</button></section>`;
+  return `<section class="member-screen"><div class="member-title"><p class="eyebrow">DIGITAL RESIDENT CARD</p><h1>水縁市 会員証</h1><p>施設やイベントで、この画面をご提示ください。</p></div><section class="resident-card member-large"><small>MIZUBE FURUSATO RESIDENT</small><h2>水縁市 ベーシック住民証</h2><p>登録番号：MZB-2026-00842</p><div class="member-code" aria-label="会員証コード">${"<i></i>".repeat(12)}</div><strong>大西 太郎 さん</strong></section><p class="identity-note">本証はふるさと住民としての登録・活動を示す実証用会員証です。住民票または本人確認書類ではありません。</p><button class="wide-button" type="button" data-route="register">登録区分と条件を見る</button></section>`;
 }
 
 function tokenPage() {
-  return `<section class="page-lead token-lead"><p class="eyebrow">MIZUBE TOKEN</p><h1>水縁トークン</h1><p>水縁市とのつながりを表す、持って楽しむデジタルグッズです。</p></section>
+  return `<section class="page-lead token-lead"><p class="eyebrow">OPTIONAL PRIVATE EXTENSION</p><h1>水縁トークン</h1><p>基本実証とは切り離して導入できる、水縁市とのつながりを表すデジタルグッズです。</p></section>
   <section class="token-holding"><div><span>保有数</span><strong>${format(tokenBalance)}</strong><small>${getHolderStage(tokenBalance).name} ステージ</small></div><button class="info-button" type="button" data-info="token">トークンとは？</button></section>
   <div class="exchange-choice"><button type="button" data-trade="exchange"><span>交換</span><strong>限定ポイントから増やす</strong></button><button type="button" data-trade="return"><span>返却</span><strong>保有を終えてFiNANCiEへ</strong></button></div>
   <section>${sectionHead("HOLDER BENEFITS","保有数に応じた体験")}<div class="benefit-list"><article><span>50</span><div><h3>活動の先行案内</h3><p>担い手募集を一般公開前にお知らせ</p></div><strong>利用中</strong></article><article><span>200</span><div><h3>水縁文化祭・企画会議</h3><p>オンライン企画会議への参加枠</p></div><strong>あと${Math.max(0,200-tokenBalance)}</strong></article><article><span>500</span><div><h3>地域プロジェクト提案会</h3><p>事業者・市職員との共創セッション</p></div><strong>あと${Math.max(0,500-tokenBalance)}</strong></article></div></section>
@@ -138,8 +149,8 @@ function tradePage() {
 }
 
 const places = [
-  ["担い手活動","川辺の景観を守る朝の清掃活動","9月21日 8:00・水縁河川公園","参加後に生涯ポイント +200pt","82% center"],
-  ["地域イベント","つくる人と暮らす人の水縁市場","毎月第2土曜・駅前広場","来訪で生涯ポイント +30pt","12% center"],
+  ["担い手活動・主催者承認","川辺の景観を守る朝の清掃活動","9月21日 8:00・水縁河川公園","参加確認後に生涯ポイント +200pt","82% center"],
+  ["地域イベント・現地QR","つくる人と暮らす人の水縁市場","毎月第2土曜・駅前広場","QR確認後に生涯ポイント +30pt","12% center"],
   ["有料体験","清流をめぐる半日パドルツアー","RIVERBASE みなも","限定ポイント還元","100% center"],
   ["地域事業者","水縁の台所 みのり食堂","本町商店街・11:00〜20:00","限定ポイント還元","2% center"],
 ];
@@ -226,8 +237,8 @@ document.addEventListener("click", (event) => {
   const action = event.target.closest("[data-action]")?.dataset.action;
   if (!action) return;
   if (action === "register") { registered = true; pushPersonalNotice("登録", "水縁市への登録が完了しました", "ふるさと住民証を会員証から確認できます。"); render(); showToast("水縁市へのベーシック登録が完了しました（デモ）"); return; }
-  if (action === "checkin") { lifetimePoints += 30; checkinPoints += 30; pushPersonalNotice("獲得", "生涯ポイントを獲得しました", "水縁市場への来訪で30ptが積み上がりました。"); showToast("生涯ポイントを30pt獲得しました（デモ）"); return; }
-  if (action === "volunteer") { pushPersonalNotice("申込", "担い手活動の申込を受け付けました", "参加後に生涯ポイント200ptを獲得できます。開催前日に改めてお知らせします。"); showToast("担い手活動の参加申込を受け付けました（デモ）"); return; }
+  if (action === "checkin") { lifetimePoints += 30; checkinPoints += 30; pushPersonalNotice("獲得", "現地QRの確認が完了しました", "水縁市場への来訪が確認され、生涯ポイント30ptが積み上がりました。"); showToast("現地QRを確認し、生涯ポイントを30pt獲得しました（デモ）"); return; }
+  if (action === "volunteer") { pushPersonalNotice("申込", "担い手活動の申込を受け付けました", "参加後、主催者の確認が完了すると生涯ポイント200ptを獲得できます。"); showToast("担い手活動の参加申込を受け付けました（デモ）"); return; }
   if (action === "benefit") { showToast("特典の利用方法を表示します（デモ）"); return; }
   if (action === "financie-account") { showToast("FiNANCiEアカウントへ移動します（デモ）"); modalRoot.innerHTML = ""; return; }
   if (action.startsWith("buy-")) { showToast("現金等または限定ポイントで購入できます（デモ）"); return; }

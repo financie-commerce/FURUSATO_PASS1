@@ -104,6 +104,11 @@ h1, h2, h3, p { margin: 0; }
 .page-lead h1 { margin-top: 5px; font-size: 25px; line-height: 1.3; }
 .page-lead p:last-child { margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .register-card { padding: 17px; display: grid; gap: 13px; }
+.registration-flow { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+.registration-flow article { padding: 11px 9px; display: grid; gap: 7px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.registration-flow span { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 8px; color: #fff; background: var(--teal); font-size: 9px; font-weight: 900; }
+.registration-flow strong { font-size: 10px; }
+.registration-flow p { margin-top: 3px; color: var(--muted); font-size: 8px; line-height: 1.4; }
 .register-card.is-premium { border-color: rgba(8,125,121,.32); background: linear-gradient(145deg,#fff,#e8f8f4); }
 .register-card h2 { font-size: 18px; }
 .register-card p { color: var(--muted); font-size: 11px; line-height: 1.6; }
@@ -121,6 +126,7 @@ h1, h2, h3, p { margin: 0; }
 .member-code { width: 170px; height: 72px; margin: 25px auto 5px; display: grid; grid-template-columns: repeat(6,1fr); gap: 5px; padding: 12px; border-radius: 15px; background: rgba(255,255,255,.96); }
 .member-code i { border-radius: 3px; background: var(--navy); }
 .member-code i:nth-child(3n), .member-code i:nth-child(4n) { opacity: .25; }
+.identity-note { padding: 11px 12px; border-radius: 14px; color: var(--muted); background: #edf2f0; font-size: 9px; line-height: 1.6; }
 
 .token-holding { padding: 19px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(145deg,#fff,#e8f8f4); }
 .token-holding span { display: block; color: var(--muted); font-size: 10px; }
@@ -303,12 +309,13 @@ h1, h2, h3, p { margin: 0; }
   .proposal-brand div { display: grid; gap: 3px; }
   .proposal-brand small { color: var(--teal); font-size: 9px; font-weight: 900; letter-spacing: .12em; }
   .proposal-brand strong { font-size: 14px; }
-  .proposal-copy { align-self: end; padding: 7vh 0 4vh; }
+  .proposal-badge { margin-left: auto; padding: 7px 10px; border: 1px solid rgba(8,125,121,.18); border-radius: 999px; color: var(--teal); background: rgba(255,255,255,.58); font-size: 9px; font-weight: 900; }
+  .proposal-copy { align-self: end; padding: clamp(28px,5.5vh,68px) 0 clamp(22px,3vh,38px); }
   .kicker { color: var(--teal); font-size: 11px; font-weight: 900; letter-spacing: .16em; }
   .proposal h1 { margin-top: 15px; max-width: 760px; font-size: clamp(44px,4.8vw,74px); line-height: 1.08; letter-spacing: -.055em; }
   .proposal .lead { margin-top: 22px; max-width: 650px; color: var(--muted); font-size: clamp(16px,1.45vw,21px); line-height: 1.8; }
-  .proposal-tabs { display: flex; gap: 7px; }
-  .proposal-tabs button { padding: 9px 14px; border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.62); font-size: 11px; font-weight: 900; }
+  .proposal-tabs { display: flex; flex-wrap: wrap; gap: 7px; }
+  .proposal-tabs button { padding: 8px 12px; border-radius: 999px; color: var(--muted); background: rgba(255,255,255,.62); font-size: 10px; font-weight: 900; }
   .proposal-tabs button.is-active { color: #fff; background: var(--navy); }
   .story-panel { min-height: 132px; margin-top: 12px; display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
   .story-panel article { padding: 16px; border: 1px solid var(--line); border-radius: 19px; background: rgba(255,255,255,.62); }
@@ -317,7 +324,9 @@ h1, h2, h3, p { margin: 0; }
   .story-panel p { margin-top: 6px; color: var(--muted); font-size: 10px; line-height: 1.55; }
   .proposal-bottom { margin-top: 18px; display: flex; align-items: center; gap: 16px; }
   .proposal-bottom button { min-height: 48px; padding: 0 18px; border-radius: 15px; color: #fff; background: var(--teal); font-size: 12px; font-weight: 900; }
-  .proposal-bottom span { color: var(--muted); font-size: 10px; }
+  .proposal-bottom div { display: grid; gap: 2px; }
+  .proposal-bottom strong { color: var(--ink); font-size: 11px; }
+  .proposal-bottom span { color: var(--muted); font-size: 9px; }
   .demo-shell { width: 520px; height: calc(100vh - 48px); min-height: 680px; position: sticky; top: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,.8); border-radius: 38px; box-shadow: 0 28px 80px rgba(16,45,53,.18); }
   .app-scroll { height: calc(100% - 36px); min-height: 0; overflow-y: auto; scrollbar-width: none; padding-bottom: 116px; }
   .app-scroll::-webkit-scrollbar { display: none; }
