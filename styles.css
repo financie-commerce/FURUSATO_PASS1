@@ -243,6 +243,10 @@ h1, h2, h3, p { margin: 0; }
 .modal-close { position: absolute; right: 15px; top: 13px; width: 34px; height: 34px; border-radius: 50%; color: var(--muted); background: #edf2f0; font-size: 20px; }
 .info-modal h2 { margin-top: 6px; font-size: 21px; }
 .info-modal > p:nth-of-type(2) { margin: 13px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.platform-note { margin: -4px 0 16px; padding: 13px; display: grid; gap: 4px; border-radius: 15px; background: #edf8f6; }
+.platform-note strong { color: var(--teal); font-size: 11px; }
+.platform-note span { color: var(--muted); font-size: 9px; line-height: 1.55; }
+.modal-sub-button { width: 100%; margin-top: 8px; min-height: 38px; color: var(--muted); background: transparent; font-size: 10px; font-weight: 900; }
 
 @media (min-width: 980px) {
   body { background: linear-gradient(120deg,#f6f2e8 0 58%,#e9f1ef 58%); }
