@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="ふるさと住民登録後の活動・購買・トークン保有をつなぐ実証提案モック。" />
     <title>水縁市 ふるさと住民パス｜実証提案モック</title>
-    <link rel="stylesheet" href="./styles.css?v=0.1.0" />
-    <script defer src="./app.js?v=0.1.0"></script>
+    <link rel="stylesheet" href="./styles.css?v=0.2.0" />
+    <script defer src="./app.js?v=0.2.0"></script>
   </head>
   <body>
     <div class="proposal-layout">
@@ -54,12 +54,13 @@
         <nav class="bottom-nav" aria-label="主要メニュー">
           <button class="nav-item is-active" type="button" data-route="home" data-icon="home"><span></span><strong>ホーム</strong></button>
           <button class="nav-item" type="button" data-route="discover" data-icon="discover"><span></span><strong>見つける</strong></button>
-          <button class="nav-item nav-token" type="button" data-route="token" data-icon="token"><span></span><strong>トークン</strong></button>
+          <button class="nav-item nav-center" type="button" data-route="memberCard" data-icon="member"><span></span><strong>会員証</strong></button>
           <button class="nav-item" type="button" data-route="store" data-icon="store"><span></span><strong>ストア</strong></button>
           <button class="nav-item" type="button" data-route="profile" data-icon="profile"><span></span><strong>マイページ</strong></button>
         </nav>
         <div class="toast" id="toast" role="status" aria-live="polite"></div>
       </section>
     </div>
+    <div id="modalRoot"></div>
   </body>
 </html>
