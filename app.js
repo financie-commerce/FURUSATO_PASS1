@@ -2,15 +2,25 @@ const screen = document.querySelector("#screen");
 const toast = document.querySelector("#toast");
 const modalRoot = document.querySelector("#modalRoot");
 const navItems = [...document.querySelectorAll(".nav-item")];
+const noticeButton = document.querySelector(".notice-button");
 let route = "home";
 let story = "concept";
 let registered = false;
 let tokenBalance = 128;
 let lifetimePoints = 2480;
+let checkinPoints = 820;
 let limitedPoints = 1420;
 let tradeMode = "exchange";
 let tradeAmount = 1000;
+let noticeTab = "personal";
+let personalUnread = 3;
 let toastTimer;
+
+const personalNotices = [
+  { type: "特典", title: "水辺文化祭の先行受付が始まりました", body: "現在の称号で利用できる特典です。9月30日まで申し込めます。", time: "今日" },
+  { type: "称号", title: "水縁ガイドまであと520ptです", body: "地域イベントへの参加や来訪で、生涯ポイントが積み上がります。", time: "今日" },
+  { type: "予定", title: "川辺清掃は明日開催です", body: "集合は8:00、水縁河川公園の案内所前です。", time: "昨日" },
+];
 
 const icons = {
   home: '<path d="M3 11 12 3l9 8"/><path d="M5 10v11h14V10"/><path d="M9 21v-7h6v7"/>',
@@ -60,12 +70,37 @@ const holderBenefits = [
 ];
 const getHolderStage = (balance) => holderStages.find((stage) => balance >= stage.threshold);
 const getLostBenefits = (before, after) => holderBenefits.filter((benefit) => before >= benefit.threshold && after < benefit.threshold);
+const scoreTitles = [
+  { threshold: 10000, name: "水縁パートナー", benefit: "地域施設の年間パス" },
+  { threshold: 6000, name: "水縁アンバサダー", benefit: "市内体験の季節クーポン" },
+  { threshold: 3000, name: "水縁ガイド", benefit: "水辺市場ドリンククーポン" },
+  { threshold: 1000, name: "水縁フレンド", benefit: "川辺ラウンジ月1回利用" },
+  { threshold: 0, name: "水縁ビギナー", benefit: "住民向け情報の配信" },
+];
+const getScoreTitle = (points) => scoreTitles.find((title) => points >= title.threshold);
+const getNextScoreTitle = (points) => [...scoreTitles].reverse().find((title) => title.threshold > points);
+const getScoreProgress = (points) => {
+  const current = getScoreTitle(points);
+  const next = getNextScoreTitle(points);
+  return next ? Math.round(((points - current.threshold) / (next.threshold - current.threshold)) * 100) : 100;
+};
+function pushPersonalNotice(type, title, body) {
+  personalNotices.unshift({ type, title, body, time: "たった今" });
+  personalUnread += 1;
+  syncNoticeBadge();
+}
+function syncNoticeBadge() {
+  const badge = noticeButton.querySelector(".notice-badge");
+  badge.hidden = personalUnread === 0;
+  badge.textContent = personalUnread > 9 ? "9+" : personalUnread;
+  badge.setAttribute("aria-label", `未読${personalUnread}件`);
+}
 
 function home() {
   return `<section class="hero"><span class="status-chip">● ベーシック登録済み</span><small>水縁市公認・ふるさと住民</small><h1>もうひとつの住民として、まちの力になる。</h1><p>訪れる、手伝う、買う。一人ひとりの関わりを記録し、水縁市との関係を育てます。</p><div class="hero-actions"><button type="button" data-route="discover">今日できること</button><button class="ghost" type="button" data-route="memberCard">会員証を見る</button></div></section>
   <section>${sectionHead("MIZUBE NEWS","地域の最新ニュース",'<button class="text-button" type="button" data-route="notices">すべて見る</button>')}<button class="featured-news" type="button" data-route="notices"><div class="featured-news-image"></div><div><small>水縁市公式・今日</small><h2>水辺市場に、新しいつくり手が加わります</h2><p>秋の開催に向けて、地域の食と手仕事を届ける出店者をご紹介します。</p><strong>活動報告を読む →</strong></div></button></section>
   <section>${sectionHead("YOUR BENEFITS","今使える特典")}<div class="home-benefits"><button type="button" data-action="benefit"><span>先行</span><div><h3>水辺文化祭の先行受付</h3><p>ふるさと住民限定・9月末まで</p></div></button><button type="button" data-action="benefit"><span>体験</span><div><h3>川辺ラウンジ利用</h3><p>会員証の提示で利用できます</p></div></button></div></section>
-  <section>${sectionHead("TODAY'S ACTION","今日からできる関わり",'<button class="text-button" type="button" data-route="discover">すべて見る</button>')}<div class="action-grid"><button type="button" data-action="checkin"><span class="action-icon">◎</span>水辺市場を訪れる<small>現地チェックイン</small></button><button type="button" data-action="volunteer"><span class="action-icon">手</span>川辺を一緒に守る<small>担い手活動</small></button><button type="button" data-route="store"><span class="action-icon">買</span>地域の品を選ぶ<small>ストアへ</small></button></div></section>`;
+  <section>${sectionHead("TODAY'S ACTION","今日からできる関わり",'<button class="text-button" type="button" data-route="discover">すべて見る</button>')}<div class="action-grid"><button type="button" data-action="checkin"><span class="action-icon">◎</span>水辺市場を訪れる<small>生涯ポイント対象</small></button><button type="button" data-action="volunteer"><span class="action-icon">手</span>川辺を一緒に守る<small>生涯ポイント対象</small></button><button type="button" data-route="store"><span class="action-icon">買</span>地域の品を選ぶ<small>限定ポイント還元</small></button></div></section>`;
 }
 
 function registerPage() {
@@ -103,8 +138,8 @@ function tradePage() {
 }
 
 const places = [
-  ["担い手活動","川辺の景観を守る朝の清掃活動","9月21日 8:00・水縁河川公園","対象活動・残り12名","82% center"],
-  ["地域イベント","つくる人と暮らす人の水辺市場","毎月第2土曜・駅前広場","現地でチェックイン","12% center"],
+  ["担い手活動","川辺の景観を守る朝の清掃活動","9月21日 8:00・水縁河川公園","参加後に生涯ポイント +200pt","82% center"],
+  ["地域イベント","つくる人と暮らす人の水辺市場","毎月第2土曜・駅前広場","来訪で生涯ポイント +30pt","12% center"],
   ["有料体験","清流をめぐる半日パドルツアー","RIVERBASE みなも","限定ポイント還元","100% center"],
   ["地域事業者","水縁の台所 みのり食堂","本町商店街・11:00〜20:00","限定ポイント還元","2% center"],
 ];
@@ -124,21 +159,35 @@ function storePage() {
 }
 
 function profilePage() {
+  const currentTitle = getScoreTitle(lifetimePoints);
+  const nextTitle = getNextScoreTitle(lifetimePoints);
+  const progress = getScoreProgress(lifetimePoints);
   return `<section class="profile-intro"><div><p class="eyebrow">MY RELATIONSHIP</p><h1>水縁市とのつながり</h1></div><button type="button" data-route="memberCard">会員証</button></section>
   <section class="wallet-card token-wallet"><div class="wallet-head"><div><small>デジタルグッズ</small><h2>水縁トークン</h2></div><button class="info-button" type="button" data-info="token">トークンとは？</button></div><div class="wallet-value"><strong>${format(tokenBalance)}</strong><span>保有</span></div><button class="wallet-link" type="button" data-route="token">特典・交換・返却を見る →</button></section>
-  <section class="wallet-card score-wallet"><div class="wallet-head"><div><small>水縁市との関わり</small><h2>水縁スコア</h2></div><button class="info-button" type="button" data-info="score">スコアとは？</button></div><div class="point-pair"><div><span>生涯ポイント</span><strong>${format(lifetimePoints)}<small> pt</small></strong><p>過ごした時間や応援の記録</p></div><div><span>限定ポイント</span><strong>${format(limitedPoints)}<small> pt</small></strong><p>ストアとトークン交換に使える</p></div></div><div class="score-breakdown"><p><span>来訪・チェックイン</span><strong>820 pt</strong></p><p><span>イベント・担い手活動</span><strong>960 pt</strong></p><p><span>購入・有料体験</span><strong>700 pt</strong></p></div><div class="score-actions"><button type="button" data-route="store">ストアで使う</button><button type="button" data-route="token">トークンと交換</button></div></section>`;
+  <section class="wallet-card score-wallet"><div class="wallet-head"><div><small>水縁市との関わり</small><h2>水縁スコア</h2></div><button class="info-button" type="button" data-info="score">スコアとは？</button></div><button class="score-title-summary" type="button" data-route="scoreRewards"><span>現在の称号</span><strong>${currentTitle.name}</strong>${nextTitle ? `<small>次の「${nextTitle.name}」まで ${format(nextTitle.threshold-lifetimePoints)}pt</small><i><b style="width:${progress}%"></b></i>` : "<small>最高称号に到達しました</small>"}</button><div class="point-pair"><div><span>生涯ポイント</span><strong>${format(lifetimePoints)}<small> pt</small></strong><p>使っても減らない関わりの記録</p></div><div><span>限定ポイント</span><strong>${format(limitedPoints)}<small> pt</small></strong><p>ストアとトークン交換に使える</p></div></div><div class="score-breakdown"><p><span>来訪・チェックイン</span><strong>${format(checkinPoints)} pt</strong></p><p><span>イベント・担い手活動</span><strong>960 pt</strong></p><p><span>購入・有料体験</span><strong>700 pt</strong></p></div><div class="score-actions"><button class="score-primary" type="button" data-route="scoreRewards">称号と特典を確認</button><button type="button" data-route="store">限定ptをストアで使う</button><button type="button" data-route="token">トークンと交換</button></div></section>`;
 }
 
 function noticesPage() {
-  return `<section class="page-lead"><p class="eyebrow">WHAT'S NEW</p><h1>水縁市からのお知らせ</h1><p>活動募集、地域事業者の取り組み、特典の追加を公式にお届けします。</p></section><div class="notice-list"><article class="notice-card"><small>今日・地域ニュース</small><h2>水辺市場に、新しいつくり手が加わります</h2><p>秋の開催に向けて、地域の食と手仕事を届ける出店者をご紹介します。</p></article><article class="notice-card"><small>2日前・担い手募集</small><h2>川辺の景観を守る清掃活動を募集します</h2><p>プレミアム登録の対象活動です。初参加の方には地域案内人が同行します。</p></article><article class="notice-card"><small>5日前・特典</small><h2>水辺文化祭の先行受付を開始しました</h2><p>対象のふるさと住民は、会員証からお申し込みいただけます。</p></article></div>`;
+  const personal = personalNotices.map((notice) => `<article class="personal-notice"><span>${notice.type.slice(0,1)}</span><div><small>${notice.time}・${notice.type}</small><h2>${notice.title}</h2><p>${notice.body}</p></div></article>`).join("");
+  const city = `<div class="notice-list"><article class="notice-card"><small>今日・地域ニュース</small><h2>水辺市場に、新しいつくり手が加わります</h2><p>秋の開催に向けて、地域の食と手仕事を届ける出店者をご紹介します。</p></article><article class="notice-card"><small>2日前・担い手募集</small><h2>川辺の景観を守る清掃活動を募集します</h2><p>プレミアム登録の対象活動です。初参加の方には地域案内人が同行します。</p></article><article class="notice-card"><small>5日前・特典</small><h2>水辺文化祭の先行受付を開始しました</h2><p>対象のふるさと住民は、会員証からお申し込みいただけます。</p></article></div>`;
+  return `<section class="page-lead notice-lead"><p class="eyebrow">NOTIFICATIONS</p><h1>お知らせ</h1><p>あなたの行動結果と、水縁市の最新情報を分けて確認できます。</p></section><div class="notice-tabs"><button class="${noticeTab === "personal" ? "is-active" : ""}" type="button" data-notice-tab="personal">あなたへ</button><button class="${noticeTab === "city" ? "is-active" : ""}" type="button" data-notice-tab="city">水縁市から</button></div>${noticeTab === "personal" ? `<div class="personal-notice-list">${personal}</div>` : city}`;
 }
 
-const renderers = { home, register:registerPage, memberCard:memberCardPage, token:tokenPage, trade:tradePage, discover:discoverPage, store:storePage, profile:profilePage, notices:noticesPage };
+function scoreRewardsPage() {
+  const current = getScoreTitle(lifetimePoints);
+  const next = getNextScoreTitle(lifetimePoints);
+  const progress = getScoreProgress(lifetimePoints);
+  const orderedTitles = [...scoreTitles].reverse();
+  return `<button class="back-link" type="button" data-route="profile">← マイページへ戻る</button><section class="page-lead score-reward-lead"><p class="eyebrow">LIFETIME MILEAGE</p><h1>称号と特典</h1><p>水縁市で過ごした時間や活動の記録です。生涯ポイントは使っても減らず、積み上がり続けます。</p></section><section class="title-hero"><small>現在の称号</small><h2>${current.name}</h2><strong>${format(lifetimePoints)} pt</strong>${next ? `<p>次の「${next.name}」まであと${format(next.threshold-lifetimePoints)}pt</p><div class="title-progress"><span style="width:${progress}%"></span></div>` : "<p>最高称号に到達しました</p>"}</section><section>${sectionHead("EVERYDAY BENEFITS","いま使える称号特典")}<div class="steady-benefits"><article><span>月1回</span><div><h3>川辺ラウンジ利用</h3><p>会員証の提示で利用できます</p></div></article><article><span>いつでも</span><div><h3>公共レンタサイクル割引</h3><p>利用料金から100円引き</p></div></article><article class="is-next"><span>次に解放</span><div><h3>${next?.benefit || "すべて解放済み"}</h3><p>${next ? `${next.name}で利用できます` : "これからも地域との関わりを楽しめます"}</p></div></article></div></section><section>${sectionHead("TITLE MAP","これまでと、これから")}<div class="title-timeline">${orderedTitles.map((title) => `<article class="${lifetimePoints >= title.threshold ? "is-earned" : ""}"><span>${lifetimePoints >= title.threshold ? "✓" : format(title.threshold)}</span><div><h3>${title.name}</h3><p>${title.benefit}</p></div></article>`).join("")}</div></section><p class="benefit-separation"><strong>称号特典</strong>は日常で使える小さな優待。<strong>トークン保有特典</strong>は期間限定の特別な体験として、役割を分けています。</p>`;
+}
+
+const renderers = { home, register:registerPage, memberCard:memberCardPage, token:tokenPage, trade:tradePage, discover:discoverPage, store:storePage, profile:profilePage, notices:noticesPage, scoreRewards:scoreRewardsPage };
 
 function render() {
   screen.innerHTML = (renderers[route] || home)();
-  const activeRoute = ["register","profile","token","trade"].includes(route) ? "profile" : route;
+  const activeRoute = ["register","profile","token","trade","scoreRewards"].includes(route) ? "profile" : route;
   navItems.forEach((item) => item.classList.toggle("is-active", item.dataset.route === activeRoute));
+  syncNoticeBadge();
   document.querySelector(".app-scroll").scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -165,18 +214,20 @@ document.addEventListener("click", (event) => {
   if (tradeButton) { tradeMode = tradeButton.dataset.trade; tradeAmount = tradeMode === "exchange" ? 1000 : 50; go("trade"); return; }
   const amountButton = event.target.closest("[data-amount]");
   if (amountButton) { tradeAmount = Number(amountButton.dataset.amount); render(); return; }
+  const noticeTabButton = event.target.closest("[data-notice-tab]");
+  if (noticeTabButton) { noticeTab = noticeTabButton.dataset.noticeTab; if (noticeTab === "personal") personalUnread = 0; render(); return; }
   if (event.target.closest("[data-confirm-trade]")) {
-    if (tradeMode === "exchange") { const received = Math.floor(tradeAmount/48.2); limitedPoints -= tradeAmount; tokenBalance += received; showToast(`${received}トークンとの交換が完了しました（デモ）`); }
-    else { const received = Math.floor(tradeAmount*45.6); const beforeStage = getHolderStage(tokenBalance); tokenBalance -= tradeAmount; const afterStage = getHolderStage(tokenBalance); const returned = tradeAmount; go("token"); showReturnComplete(returned, received, beforeStage, afterStage); return; }
+    if (tradeMode === "exchange") { const received = Math.floor(tradeAmount/48.2); limitedPoints -= tradeAmount; tokenBalance += received; pushPersonalNotice("交換", "トークンの交換が完了しました", `${format(tradeAmount)}限定ptで${received}水縁トークンを受け取りました。`); showToast(`${received}トークンとの交換が完了しました（デモ）`); }
+    else { const received = Math.floor(tradeAmount*45.6); const beforeStage = getHolderStage(tokenBalance); tokenBalance -= tradeAmount; const afterStage = getHolderStage(tokenBalance); const returned = tradeAmount; pushPersonalNotice("返却", "トークンを返却しました", `${returned}水縁トークンを返却しました。生涯ポイントと活動履歴は残ります。`); go("token"); showReturnComplete(returned, received, beforeStage, afterStage); return; }
     go("token"); return;
   }
   const routeButton = event.target.closest("[data-route]");
-  if (routeButton) { go(routeButton.dataset.route); return; }
+  if (routeButton) { if (routeButton.dataset.route === "notices") { noticeTab = "personal"; personalUnread = 0; } go(routeButton.dataset.route); return; }
   const action = event.target.closest("[data-action]")?.dataset.action;
   if (!action) return;
-  if (action === "register") { registered = true; render(); showToast("水縁市へのベーシック登録が完了しました（デモ）"); return; }
-  if (action === "checkin") { lifetimePoints += 30; showToast("水辺市場への来訪を記録しました（デモ）"); return; }
-  if (action === "volunteer") { showToast("担い手活動の参加申込へ進みます（デモ）"); return; }
+  if (action === "register") { registered = true; pushPersonalNotice("登録", "水縁市への登録が完了しました", "ふるさと住民証を会員証から確認できます。"); render(); showToast("水縁市へのベーシック登録が完了しました（デモ）"); return; }
+  if (action === "checkin") { lifetimePoints += 30; checkinPoints += 30; pushPersonalNotice("獲得", "生涯ポイントを獲得しました", "水辺市場への来訪で30ptが積み上がりました。"); showToast("生涯ポイントを30pt獲得しました（デモ）"); return; }
+  if (action === "volunteer") { pushPersonalNotice("申込", "担い手活動の申込を受け付けました", "参加後に生涯ポイント200ptを獲得できます。開催前日に改めてお知らせします。"); showToast("担い手活動の参加申込を受け付けました（デモ）"); return; }
   if (action === "benefit") { showToast("特典の利用方法を表示します（デモ）"); return; }
   if (action === "financie-account") { showToast("FiNANCiEアカウントへ移動します（デモ）"); modalRoot.innerHTML = ""; return; }
   if (action.startsWith("buy-")) { showToast("現金等または限定ポイントで購入できます（デモ）"); return; }
